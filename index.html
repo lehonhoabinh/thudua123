@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thi đua lớp học</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 16px;
+      background: linear-gradient(to bottom right, #d0f0c0, #f8f8f8);
+      max-width: 600px;
+      margin: auto;
+    }
+    h2, h4 {
+      text-align: center;
+      color: #333;
+    }
+    label {
+      font-weight: bold;
+    }
+    select, input[type="date"], input[type="text"], input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .section {
+      background: white;
+      padding: 12px;
+      margin-top: 16px;
+      border-radius: 8px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+    button {
+      background: #4CAF50;
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 5px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    #summary {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+  <h2>Thi đua lớp học</h2>
+  <div class="section" id="mainApp"></div>
+
+  <script>
+    const records = [];
+
+    function exportExcel() {
+      let csv = 'Ngày,Người trực,Lớp học,Danh mục,Điểm,Chú thích\n';
+      records.forEach(r => {
+        csv += `${r.ngay},${r.nguoitruc},${r.lop},${r.danhmuc},${r.diem},${r.chuthich}\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "thi_dua.csv";
+      link.click();
+    }
+
+    function updateSummary() {
+      let total = 0;
+      records.forEach(r => {
+        const diem = parseInt(r.diem);
+        if (!isNaN(diem)) {
+          total += diem;
+        }
+      });
+      document.getElementById("summary").innerText = `🔢 Tổng điểm hiện tại (bao gồm điểm cộng/trừ và phát sinh): ${total}`;
+    }
+
+    function saveRecord() {
+      const ngay = document.getElementById("ngay").value;
+      const nguoitruc = document.getElementById("nguoitruc").value;
+      const lop = document.getElementById("lop").value;
+      const danhmuc = document.getElementById("danhmuc").value;
+      const diem = document.getElementById("diem").value;
+      const chuthich = document.getElementById("chuthich").value;
+
+      if (!ngay || !lop || !danhmuc || !diem) {
+        alert("Vui lòng nhập đầy đủ thông tin!");
+        return;
+      }
+
+      records.push({ ngay, nguoitruc, lop, danhmuc, diem, chuthich });
+      alert("✅ Đã lưu!");
+      updateSummary();
+    }
+
+    function loadApp() {
+      document.getElementById("mainApp").innerHTML = `
+        <div class="section">
+          <label>Ngày:</label>
+          <input type="date" id="ngay">
+
+          <label>Người trực:</label>
+          <input type="text" id="nguoitruc" placeholder="Tên người trực">
+
+          <label>Lớp học:</label>
+          <select id="lop">
+            <option>6A1</option>
+            <option>6A2</option>
+            <option>6A3</option>
+          </select>
+
+          <label>Danh mục:</label>
+          <select id="danhmuc">
+            <option>Đi học muộn</option>
+            <option>Không đồng phục</option>
+            <option>Không trực nhật</option>
+            <option>Gây mất trật tự</option>
+            <option>Phát sinh điểm cộng</option>
+            <option>Phát sinh điểm trừ</option>
+          </select>
+
+          <label>Điểm cộng / trừ:</label>
+          <input type="number" id="diem" placeholder="Nhập số điểm">
+
+          <label>Chú thích (tên học sinh / ghi chú cụ thể):</label>
+          <input type="text" id="chuthich" placeholder="Nhập chi tiết">
+
+          <button onclick="saveRecord()">💾 Ghi nhận</button>
+          <button onclick="exportExcel()">📤 Xuất Excel</button>
+          <div id="summary">🔢 Tổng điểm hiện tại (bao gồm điểm cộng/trừ và phát sinh): 0</div>
+        </div>
+      `;
+    }
+
+    // Khởi động trực tiếp không cần đăng nhập
+    window.onload = loadApp;
+  </script>
+</body>
+</html>
